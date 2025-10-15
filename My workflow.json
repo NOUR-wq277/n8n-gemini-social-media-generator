@@ -1,0 +1,128 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        -80
+      ],
+      "id": "37871d19-1fd0-4c94-9e28-a78c8fc9d507",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "44799a11-5ec5-4aa3-892e-d7dec3e5701c",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -96,
+        -80
+      ],
+      "id": "c6ccbde3-cf12-49dd-8406-e90abbb2b2df",
+      "name": "Webhook",
+      "webhookId": "44799a11-5ec5-4aa3-892e-d7dec3e5701c"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash-preview-05-20",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash-preview-05-20"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=اكتب لي منشور سوشيال ميديا احترافي وجذاب.\n\nالموضوع هو: {{ $json.body.data.fields[0].value }}\n\nالهدف من المنشور هو: {{ $json.body.data.fields[1].value }}\n\nاجعل المنشور مناسبًا لمنصة فيسبوك واستخدم إيموجي مناسبة."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        96,
+        -80
+      ],
+      "id": "d0458ef6-8f89-41e6-8849-318149b342c3",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "dxsqHexOLkLtDqVN",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Webhook').item.json.body.data.fields[2].value }}",
+        "subject": " The content you requested is ready! 🤖",
+        "message": "=<h3>أهلاً بك، المنشور الذي طلبته جاهز!</h3>\n<p>هذا هو المحتوى الذي تم إنشاؤه لك:</p>\n<hr>\n<blockquote>\n    <p>{{ $('Message a model').item.json.content.parts[0].text }}</p>\n</blockquote>\n<hr>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        432,
+        -80
+      ],
+      "id": "3ec48c2f-1095-4c64-aaea-988470d7c84c",
+      "name": "Send a message",
+      "webhookId": "b25de086-3d89-4ccf-a885-6899e31c0204",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "17QUJffxGYWwSUaD",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        []
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3ef3bb0f-85ef-44c5-8526-c1ec5344325a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e76028a4fe6a2e0730a1c06eba8f0765a26b69a71b310f5a570ee0136be175a2"
+  },
+  "id": "pM6iov00onRMQ0xT",
+  "tags": []
+}
